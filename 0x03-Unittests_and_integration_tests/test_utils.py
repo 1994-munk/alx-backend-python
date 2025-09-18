@@ -55,7 +55,7 @@ class TestMemoize(unittest.TestCase):
     """Unit tests for memoize decorator"""
 
     def test_memoize(self):
-        """Test that memoize caches method result"""
+        """Test that memoize caches result only once"""
 
         class TestClass:
             def a_method(self):
@@ -73,4 +73,3 @@ class TestMemoize(unittest.TestCase):
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
             mock_method.assert_called_once()
-
