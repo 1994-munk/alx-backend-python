@@ -12,9 +12,14 @@ class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient"""
 
     @parameterized.expand([
-        ("google", {"payload": True}),
-        ("abc", {"payload": False})
+        ({"license": {"key": "my_license"}}, "my_license", True),
+        ({"license": {"key": "other_license"}}, "my_license", False),
     ])
+    def test_has_license(self, repo, license_key, expected):
+        """Test GithubOrgClient.has_license method with different license keys"""
+        client = GithubOrgClient("test_org")
+        self.assertEqual(client.has_license(repo, license_key), expected)
+        
     @patch("client.get_json")
     def test_org(self, org_name, expected, mock_get_json):
         """Test that GithubOrgClient.org returns expected data"""
