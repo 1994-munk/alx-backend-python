@@ -47,12 +47,12 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
-        """Test that public_repos returns expected repo names"""
-        mock_payload = [
+        """Test GithubOrgClient.public_repos returns expected repo names"""
+        payload = [
             {"name": "repo1", "license": {"key": "my_license"}},
             {"name": "repo2", "license": {"key": "other_license"}},
         ]
-        mock_get_json.return_value = mock_payload
+        mock_get_json.return_value = payload
 
         client = GithubOrgClient("google")
         with patch.object(
@@ -75,3 +75,8 @@ class TestGithubOrgClient(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+        
+    
+
+    
