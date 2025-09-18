@@ -68,7 +68,9 @@ class TestGithubOrgClient(unittest.TestCase):
 
             self.assertEqual(repos, ["repo1", "repo2"])
             mock_repos_url.assert_called_once()
-            mock_get_json.assert_called_once_with("http://some_url.com/repos")
+            mock_get_json.assert_called_once_with(
+                "http://some_url.com/repos"
+            )
 
 
 if __name__ == "__main__":
