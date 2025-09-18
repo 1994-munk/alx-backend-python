@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for client.py"""
+"""Unit tests for GithubOrgClient"""
 
 import unittest
 from unittest.mock import patch, PropertyMock
@@ -44,6 +44,29 @@ class TestGithubOrgClient(unittest.TestCase):
             result = client._public_repos_url
 
             self.assertEqual(result, test_payload["repos_url"])
+
+    @patch("client.get_json")
+    def test_public_repos(self, mock_get_json):
+        """Test that public_repos returns expected repo names"""
+        mock_payload = [
+            {"name": "repo1", "license": {"key": "my_license"}},
+            {"name": "repo2", "license": {"key": "other_license"}},
+        ]
+        mock_get_json.return_value = mock_payload
+
+        client = GithubOrgClient("google")
+        with patch.object(
+            GithubOrgClient,
+            "_public_repos_url",
+            new_callable=PropertyMock
+        ) as mock_repos_url:
+            mock_repos_url.return_value = "http://some_url.com/repos"
+
+            repos = client.public_repos()
+
+            self.assertEqual(repos, ["repo1", "repo2"])
+            mock_repos_url.assert_called_once()
+            mock_get_json.assert_called_once_with("http://some_url.com/repos")
 
 
 if __name__ == "__main__":
