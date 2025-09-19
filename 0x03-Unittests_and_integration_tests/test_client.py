@@ -9,7 +9,6 @@ from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from fixtures import TEST_PAYLOAD
 
-
 class TestGithubOrgClient(unittest.TestCase):
     """Task 1–7: Unit tests for GithubOrgClient"""
 
@@ -68,7 +67,6 @@ class TestGithubOrgClient(unittest.TestCase):
             GithubOrgClient.has_license(repo, license_key), expected
         )
 
-
 # =============================
 # Task 8–9: Integration Tests
 # =============================
@@ -115,7 +113,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             client.public_repos("apache-2.0"),
             self.apache2_repos
         )
-
 
 if __name__ == "__main__":
     unittest.main()
