@@ -11,7 +11,7 @@ from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """Task 1–3: Unit tests for GithubOrgClient"""
+    """Task 1–7: Unit tests for GithubOrgClient"""
 
     @parameterized.expand([
         ("google",),
@@ -69,15 +69,17 @@ class TestGithubOrgClient(unittest.TestCase):
         )
 
 
-# Task 4–7 left unchanged as you requested 💖
-@parameterized_class([
-    {"org_payload": TEST_PAYLOAD[0][0],
-     "repos_payload": TEST_PAYLOAD[0][1],
-     "expected_repos": TEST_PAYLOAD[0][2],
-     "apache2_repos": TEST_PAYLOAD[0][3]},
-])
+# =============================
+# Task 8–9: Integration Tests
+# =============================
+@parameterized_class([{
+    "org_payload": TEST_PAYLOAD[0][0],
+    "repos_payload": TEST_PAYLOAD[0][1],
+    "expected_repos": TEST_PAYLOAD[0][2],
+    "apache2_repos": TEST_PAYLOAD[0][3],
+}])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Task 8: Integration tests with fixtures"""
+    """Integration tests for GithubOrgClient"""
 
     @classmethod
     def setUpClass(cls):
@@ -93,7 +95,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         mock_repos = Mock()
         mock_repos.json.return_value = cls.repos_payload
 
-        # First call returns org, second call returns repos
+        # Side effect: first call returns org, second returns repos
         mock_get.side_effect = [mock_org, mock_repos]
 
     @classmethod
@@ -102,14 +104,18 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """Test that public_repos returns expected repos"""
+        """Test that public_repos returns expected repos (Task 9)"""
         client = GithubOrgClient("test")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
-        """Test public_repos filters repos by license"""
+        """Test public_repos filters repos by license (Task 9)"""
         client = GithubOrgClient("test")
         self.assertEqual(
             client.public_repos("apache-2.0"),
             self.apache2_repos
         )
+
+
+if __name__ == "__main__":
+    unittest.main()
