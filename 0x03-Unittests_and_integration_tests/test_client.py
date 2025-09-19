@@ -70,14 +70,14 @@ class TestGithubOrgClient(unittest.TestCase):
 
 
 # Task 4–7 left unchanged as you requested 💖
-@parameterized_class([
-    {"org_payload": TEST_PAYLOAD[0][0],
-     "repos_payload": TEST_PAYLOAD[0][1],
-     "expected_repos": TEST_PAYLOAD[0][2],
-     "apache2_repos": TEST_PAYLOAD[0][3]},
-])
+@parameterized_class([{
+    "org_payload": TEST_PAYLOAD[0][0],
+    "repos_payload": TEST_PAYLOAD[0][1],
+    "expected_repos": TEST_PAYLOAD[0][2],
+    "apache2_repos": TEST_PAYLOAD[0][3],
+}])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Task 8: Integration tests with fixtures"""
+    """Task 8–9: Integration tests with fixtures"""
 
     @classmethod
     def setUpClass(cls):
