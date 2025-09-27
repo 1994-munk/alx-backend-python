@@ -48,6 +48,28 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
 
     search_fields = ['content']  # example field
+    
+    def get_queryset(self):
+        # Filter messages by conversation_id from the URL/query params
+        conversation_id = self.request.query_params.get("conversation_id")
+        if conversation_id:
+            return Message.objects.filter(conversation_id=conversation_id)
+        return Message.objects.none()
+    
+    def perform_create(self, serializer):
+        conversation_id = self.request.data.get("conversation_id")
+        conversation = Conversation.objects.get(id=conversation_id)
+
+        # Check if user is participant
+        if self.request.user not in conversation.participants.all():
+            return Response(
+                {"detail": "You are not a participant of this conversation."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer.save(sender=self.request.user, conversation=conversation)
+
+
 
     # Custom create method to send a message in a conversation
     def create(self, request, *args, **kwargs):

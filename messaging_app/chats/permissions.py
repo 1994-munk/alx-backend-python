@@ -13,18 +13,24 @@ class IsOwner(BasePermission):
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Custom permission to allow only participants of a conversation
-    to view, send, update, or delete messages.
+    Only allow participants of a conversation to view, send, update, and delete messages.
     """
 
     def has_permission(self, request, view):
-        # User must be authenticated
+        # Must be authenticated
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
         """
-        Object-level permission:
-        Only participants of the conversation can access messages.
+        Object-level permissions:
+        Only participants can access objects in a conversation.
         """
-        # Assuming obj has a conversation attribute and that conversation has participants
-        return request.user in obj.conversation.participants.all()
+        # Make sure user is a participant
+        is_participant = request.user in obj.conversation.participants.all()
+
+        # For unsafe methods (PUT, PATCH, DELETE), still enforce the same rule
+        if request.method in ["PUT", "PATCH", "DELETE"]:
+            return is_participant
+
+        # For safe methods (GET, POST, etc.), same rule applies
+        return is_participant
