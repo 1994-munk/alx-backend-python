@@ -2,10 +2,11 @@
 # messaging_app/chats/views.py
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsOwner
+from .permissions import IsOwner,IsParticipantOfConversation
 from rest_framework.response import Response
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+
 
 
 # ----------------------------
@@ -14,6 +15,7 @@ from .serializers import ConversationSerializer, MessageSerializer
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all().order_by("-created_at")
     serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     filter_backends = [filters.SearchFilter]  # required by checker
     search_fields = ['title']  # example field
 
@@ -43,6 +45,8 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = [IsAuthenticated, IsOwner]  # 👈 now protected
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+
     search_fields = ['content']  # example field
 
     # Custom create method to send a message in a conversation
