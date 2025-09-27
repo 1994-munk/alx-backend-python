@@ -3,6 +3,8 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwner,IsParticipantOfConversation
+from rest_framework.filters import OrderingFilter
+from .pagination import MessagePagination
 from rest_framework.response import Response
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
@@ -44,8 +46,11 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by("sent_at")
     serializer_class = MessageSerializer
     filter_backends = [filters.SearchFilter]
-    permission_classes = [IsAuthenticated, IsOwner]  # 👈 now protected
-    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    permission_classes = [IsAuthenticated, IsOwner,IsParticipantOfConversation]  
+    pagination_class = MessagePagination  # ✅ Pagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]  # ✅ Filtering
+    filterset_class = MessageFilter
+    ordering_fields = ["timestamp"]
 
     search_fields = ['content']  # example field
     
