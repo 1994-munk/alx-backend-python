@@ -16,11 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from messaging_app.chats import auth
+from chats import auth
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include(auth.urlpatterns)),   # now this works
-    path("api/", include("messaging_app.chats.urls")),
+    path("api/", include("chats.urls")),
     path("api-auth/", include("rest_framework.urls")),
 ]

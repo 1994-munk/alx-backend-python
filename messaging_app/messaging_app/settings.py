@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "rest_framework_simplejwt",
      #Local apps
-    'messaging_app.chats',
+    'chats',
 ]
 
 MIDDLEWARE = [
