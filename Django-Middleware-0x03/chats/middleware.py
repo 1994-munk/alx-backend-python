@@ -1,5 +1,6 @@
 # chats/middleware.py
 from django.http import HttpResponseForbidden
+from django.http import JsonResponse
 import logging
 from datetime import datetime
 
@@ -90,3 +91,35 @@ class OffensiveLanguageMiddleware:
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0]
         return request.META.get("REMOTE_ADDR")        
+
+class RolePermissionMiddleware:
+    """
+    Middleware to enforce role-based permissions.
+    Only users with role 'admin' or 'moderator' are allowed
+    to access protected views.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Get user role from request (assuming it's stored in request.user or session)
+        user = getattr(request, "user", None)
+
+        # If user is authenticated and has a role attribute
+        if user and hasattr(user, "role"):
+            if user.role not in ["admin", "moderator"]:
+                return JsonResponse(
+                    {"error": "Forbidden: Insufficient permissions"},
+                    status=403
+                )
+        else:
+            # If no role info, block request
+            return JsonResponse(
+                {"error": "Forbidden: Role not found"},
+                status=403
+            )
+
+        # Allow request if role is okay
+        response = self.get_response(request)
+        return response
