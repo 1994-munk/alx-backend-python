@@ -24,15 +24,16 @@ class RequestLoggingMiddleware:
         logger.info(log_entry)
         return self.get_response(request)
 
-"""
-    Middleware to restrict access to the chat app
-    outside of working hours (6PM - 9PM).
-    """
 
-def __init__(self, get_response):
+class RestrictAccessByTimeMiddleware:
+    """
+    Middleware to restrict access to the chat app
+    outside of working hours (9AM - 6PM).
+    """
+    def __init__(self, get_response):
         self.get_response = get_response
 
-def __call__(self, request):
+    def __call__(self, request):
         # Get current server time (hour in 24h format)
         current_hour = datetime.now().hour  
 
