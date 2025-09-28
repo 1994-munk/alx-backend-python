@@ -45,3 +45,48 @@ class RestrictAccessByTimeMiddleware:
 
         # Otherwise continue normally
         return self.get_response(request)
+
+class OffensiveLanguageMiddleware:
+    """
+    Middleware to limit number of chat messages per IP address.
+    Each IP can only send 5 POST requests (messages) per 1 minute.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # Dictionary to track requests per IP {ip: [timestamps]}
+        self.ip_request_log = {}
+
+    def __call__(self, request):
+        # Only check POST requests (chat messages)
+        if request.method == "POST":
+            ip_address = self.get_client_ip(request)
+            now = datetime.now()
+
+            # Initialize log for this IP if not exists
+            if ip_address not in self.ip_request_log:
+                self.ip_request_log[ip_address] = []
+
+            # Remove timestamps older than 1 minute
+            one_minute_ago = now - timedelta(minutes=1)
+            self.ip_request_log[ip_address] = [
+                ts for ts in self.ip_request_log[ip_address] if ts > one_minute_ago
+            ]
+
+            # Check how many requests remain in the 1-minute window
+            if len(self.ip_request_log[ip_address]) >= 5:
+                return HttpResponseForbidden(
+                    "⛔ Too many messages. You are limited to 5 per minute."
+                )
+
+            # Log the new request
+            self.ip_request_log[ip_address].append(now)
+
+        return self.get_response(request)
+
+    def get_client_ip(self, request):
+        """Helper to extract client IP address."""
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            return x_forwarded_for.split(",")[0]
+        return request.META.get("REMOTE_ADDR")        
