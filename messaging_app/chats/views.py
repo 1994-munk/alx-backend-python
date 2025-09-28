@@ -1,5 +1,7 @@
 
 # messaging_app/chats/views.py
+from .filters import MessageFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwner,IsParticipantOfConversation
@@ -42,6 +44,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
 # ----------------------------
 # Message ViewSet
 # ----------------------------
+from django_filters.rest_framework import DjangoFilterBackend
+
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by("sent_at")
     serializer_class = MessageSerializer
