@@ -86,4 +86,10 @@ def threaded_conversation(request, message_id):
     """
     unread_messages = Message.unread.for_user(request.user)
 
-    return render(request, "messaging/unread_inbox.html", {"messages": unread_messages})   
+    return render(request, "messaging/unread_inbox.html", {"messages": unread_messages})  
+
+# Cache this view for 60 seconds
+@cache_page(60)
+def conversation_messages(request, conversation_id):
+    messages = Message.objects.filter(conversation_id=conversation_id).order_by("created_at")
+    return render(request, "chats/conversation.html", {"messages": messages})
