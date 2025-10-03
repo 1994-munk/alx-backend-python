@@ -37,7 +37,7 @@ conversation = root_message.get_thread()
 
 # Recursive function to get all replies for a given message
 def get_replies(message):
-    replies = message.replies.all().select_related("sender", "receiver")
+    replies = Message.objects.filter(parent_message=message).select_related("sender", "receiver")
     thread = []
     for reply in replies:
         thread.append({
