@@ -52,11 +52,11 @@ def get_replies(message):
 
 def inbox(request):
     # ✅ Use the custom manager
-    unread_messages = Message.unread.for_user(request.user)
+    unread_messages = Message.unread.unread_for_user(request.user).only(
+        "id", "sender", "content", "created_at"
+    )
 
-    return render(request, "messaging/inbox.html", {
-        "unread_messages": unread_messages
-    })
+    return render(request, "messaging/inbox.html", {"messages": unread_messages})
 
 
 @login_required
