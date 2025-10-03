@@ -2,6 +2,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Message
+
 
 def delete_user(request, user_id):
     """
@@ -65,3 +69,12 @@ def threaded_conversation(request, message_id):
     }
 
     return render(request, "messaging/threaded_conversation.html", {"conversation": conversation})
+
+ @login_required
+ def unread_inbox(request):
+    """
+    Show all unread messages for the logged-in user.
+    """
+    unread_messages = Message.unread.for_user(request.user)
+
+    return render(request, "messaging/unread_inbox.html", {"messages": unread_messages})   
