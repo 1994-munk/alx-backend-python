@@ -50,6 +50,15 @@ def get_replies(message):
         })
     return thread
 
+def inbox(request):
+    # ✅ Use the custom manager
+    unread_messages = Message.unread.for_user(request.user)
+
+    return render(request, "messaging/inbox.html", {
+        "unread_messages": unread_messages
+    })
+
+
 @login_required
 def threaded_conversation(request, message_id):
     """
