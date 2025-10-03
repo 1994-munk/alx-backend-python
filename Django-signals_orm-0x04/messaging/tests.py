@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Message, Notification,MessageHistory
-
 class SignalTest(TestCase):
     def setUp(self):
         self.user1 = User.objects.create_user(username="alice", password="12345")
