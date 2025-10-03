@@ -20,6 +20,33 @@ class Message(models.Model):
         related_name="edited_messages"
     )
 
+    #  track if message was edited
+    edited = models.BooleanField(default=False)
+    edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="edited_messages")
+
+    #  parent message (threading)
+    parent_message = models.ForeignKey(
+        'self', 
+        null=True, 
+        blank=True, 
+        on_delete=models.CASCADE, 
+        related_name="replies"
+    )
+
+    def get_thread(self):
+        """Recursively fetch all replies to this message."""
+        thread = []
+        for reply in self.replies.all():
+            thread.append({
+                "id": reply.id,
+                "content": reply.content,
+                "sender": reply.sender.username,
+                "created_at": reply.created_at,
+                "replies": reply.get_thread()  # recursion
+            })
+        return thread
+
+
     def __str__(self):
         return f"From {self.sender.username} to {self.receiver.username}"
 

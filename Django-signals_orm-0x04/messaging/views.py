@@ -19,3 +19,18 @@ def delete_user(request, user_id):
     messages.success(request, f"User '{username}' and related data deleted successfully.")
     return redirect("/")  # Redirect somewhere safe
 
+   def conversation_view(request, user_id):
+    # Fetch messages for this user and prefetch replies
+    messages = (
+        Message.objects
+        .filter(receiver_id=user_id)
+        .select_related("sender", "receiver", "parent_message")
+        .prefetch_related("replies")  # Optimized fetching
+        .order_by("-created_at")
+    )
+
+    return render(request, "messaging/conversation.html", {"messages": messages})
+
+# Fetch a root message with full thread
+root_message = Message.objects.get(id=1)
+conversation = root_message.get_thread()
