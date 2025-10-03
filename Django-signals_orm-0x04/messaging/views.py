@@ -19,7 +19,7 @@ def delete_user(request, user_id):
     messages.success(request, f"User '{username}' and related data deleted successfully.")
     return redirect("/")  # Redirect somewhere safe
 
-   def conversation_view(request, user_id):
+def conversation_view(request, user_id):
     # Fetch messages for this user and prefetch replies
     messages = (
         Message.objects
@@ -34,3 +34,34 @@ def delete_user(request, user_id):
 # Fetch a root message with full thread
 root_message = Message.objects.get(id=1)
 conversation = root_message.get_thread()
+
+# Recursive function to get all replies for a given message
+def get_replies(message):
+    replies = message.replies.all().select_related("sender", "receiver")
+    thread = []
+    for reply in replies:
+        thread.append({
+            "message": reply,
+            "replies": get_replies(reply)  # recursion to fetch nested replies
+        })
+    return thread
+
+@login_required
+def threaded_conversation(request, message_id):
+    """
+    Display a threaded conversation starting from a root message.
+    Uses select_related + prefetch_related to optimize queries.
+    """
+    # Only fetch messages belonging to the logged-in user
+    root_message = get_object_or_404(
+        Message.objects.select_related("sender", "receiver").prefetch_related("replies"),
+        id=message_id,
+        sender=request.user
+    )
+
+    conversation = {
+        "root": root_message,
+        "replies": get_replies(root_message)
+    }
+
+    return render(request, "messaging/threaded_conversation.html", {"conversation": conversation})
