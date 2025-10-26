@@ -122,3 +122,72 @@ jobs:
       - name: Run tests with pytest
         run: |
           pytest --maxfail=1 --disable-warnings -q
+
+
+name: Django CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      # 🧩 Step 1: Checkout your code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🧰 Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 🧪 Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r messaging_app/requirements.txt
+          pip install flake8 pytest pytest-cov
+
+      # 🧹 Step 4: Run flake8 linting
+      - name: Run flake8 linting
+        run: |
+          echo "Running flake8 linting..."
+          flake8 messaging_app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 messaging_app --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+      # ⚙️ Step 5: Run tests with coverage
+      - name: Run tests with pytest and coverage
+        env:
+          DJANGO_SETTINGS_MODULE: messaging_app.settings
+          DB_NAME: test_db
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+        run: |
+          pytest --maxfail=1 --disable-warnings --cov=messaging_app --cov-report=xml --cov-report=term
+
+      # 📊 Step 6: Upload coverage report
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
