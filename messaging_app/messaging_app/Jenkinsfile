@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // 👇 Replace this with your actual Jenkins credentials ID (from Manage Jenkins → Credentials)
+        // ✅ Replace with your actual Jenkins credentials ID
         GITHUB_CREDENTIALS = 'github-creds'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                // ✅ Pulls code from your GitHub repo using credentials
+                // ✅ Pull code from GitHub
                 git branch: 'main',
                     credentialsId: "${GITHUB_CREDENTIALS}",
                     url: 'https://github.com/1994-munk/alx-backend-python.git'
@@ -19,10 +19,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                // ✅ Installing pytest + any required packages
+                // ✅ Explicitly mention messaging_app/requirements.txt
                 sh '''
-                cd messaging_app
-                pip3 install -r requirements.txt
+                pip3 install -r messaging_app/requirements.txt
                 '''
             }
         }
@@ -30,7 +29,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running pytest...'
-                // ✅ Run tests and generate a simple test report
+                // ✅ Run pytest inside the messaging_app directory
                 sh '''
                 cd messaging_app
                 pytest --junitxml=report.xml
@@ -40,7 +39,7 @@ pipeline {
 
         stage('Archive Test Report') {
             steps {
-                // ✅ Save the test results to Jenkins
+                // ✅ Collect test report from the subfolder
                 junit 'messaging_app/report.xml'
             }
         }
@@ -48,7 +47,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline finished! ✅'
+            echo 'Pipeline completed ✅'
         }
     }
 }
